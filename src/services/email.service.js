@@ -183,7 +183,7 @@ async function sendInviteEmail(invite, frontendUrl) {
 
   await resend.emails.send({
     from: SENDER_EMAIL,
-    to: [invite.email],
+    to: invite.email,
     subject: `You're Invited to Our Wedding, ${invite.name}!`,
     html: generateInviteEmailHTML(invite.name, inviteUrl),
   });
