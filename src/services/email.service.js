@@ -142,19 +142,19 @@ function generateInviteEmailHTML(guestName, inviteUrl) {
         <div class="details">
           <div style="margin-bottom:15px;">
             <div class="label">Date</div>
-            <div class="value">Saturday, June 15, 2024</div>
+            <div class="value">Saturday, October 03, 2026</div>
           </div>
 
           <div style="margin-bottom:15px;">
             <div class="label">Time</div>
-            <div class="value">4:00 PM</div>
+            <div class="value">03:00 PM</div>
           </div>
 
           <div>
             <div class="label">Venue</div>
-            <div class="value">The Garden Estate</div>
+            <div class="value">Sta.Ursula Parish Church</div>
             <p style="margin:5px 0;font-size:14px;color:#8B9D83;">
-              123 Celebration Lane, Beverly Hills, CA
+              Libid Binangonan, Rizal
             </p>
           </div>
         </div>
