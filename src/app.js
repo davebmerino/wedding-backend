@@ -12,7 +12,12 @@ const statsRoutes = require("./routes/stats.routes.js");
 const app = express();
 
 app.use(express.json({ limit: "10mb" }));
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://carl-irish.vercel.app/"],
+    credentials: true,
+  }),
+);
 app.use(logger);
 
 app.use("/api/admin", authRoutes);
