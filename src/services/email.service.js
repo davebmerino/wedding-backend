@@ -187,6 +187,8 @@ async function sendInviteEmail(invite, frontendUrl) {
     subject: `You're Invited to Our Wedding, ${invite.name}!`,
     html: generateInviteEmailHTML(invite.name, inviteUrl),
   });
+
+  console.log("Resend result:", result);
 }
 
 async function sendRSVPNotification(rsvp) {
