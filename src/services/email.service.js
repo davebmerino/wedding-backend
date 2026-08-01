@@ -181,7 +181,7 @@ function generateInviteEmailHTML(guestName, inviteUrl) {
 async function sendInviteEmail(invite, frontendUrl) {
   const inviteUrl = `${frontendUrl}/${invite.id}`;
 
-  await resend.emails.send({
+  const result = await resend.emails.send({
     from: SENDER_EMAIL,
     to: invite.email,
     subject: `You're Invited to Our Wedding, ${invite.name}!`,
