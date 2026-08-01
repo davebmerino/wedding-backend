@@ -294,7 +294,7 @@ async function sendRSVPNotification(rsvp) {
 
   await resend.emails.send({
     from: SENDER_EMAIL,
-    to: [RECIPIENT_EMAIL],
+    to: RECIPIENT_EMAIL,
     subject: `New RSVP: ${primary.name} + ${additional.length} guest(s)`,
     html,
   });
