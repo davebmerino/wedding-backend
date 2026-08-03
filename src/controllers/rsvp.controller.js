@@ -89,16 +89,16 @@ exports.submitRSVP = async (req, res, next) => {
     }
 
     // Every email must exist in the invitation list
-    for (const email of emails) {
-      const invited = await Invite.findOne({
-        email: { $regex: new RegExp(`^${email}$`, "i") },
-      });
-      if (!invited) {
-        return res
-          .status(400)
-          .json({ detail: `${email} is not on the invitation list.` });
-      }
-    }
+    // for (const email of emails) {
+    //   const invited = await Invite.findOne({
+    //     email: { $regex: new RegExp(`^${email}$`, "i") },
+    //   });
+    //   if (!invited) {
+    //     return res
+    //       .status(400)
+    //       .json({ detail: `${email} is not on the invitation list.` });
+    //   }
+    // }
 
     // Create RSVP
     const rsvp = await RSVP.create({
