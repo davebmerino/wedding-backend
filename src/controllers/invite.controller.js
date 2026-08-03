@@ -45,6 +45,30 @@ exports.createInvite = async (req, res, next) => {
       return res.status(400).json({ detail: "Name is required" });
     }
 
+    // Check duplicate name
+    const existingName = await Invite.findOne({
+      name: { $regex: new RegExp(`^${name.trim()}$`, "i") },
+    });
+
+    if (existingName) {
+      return res
+        .status(400)
+        .json({ detail: "An invite with this name already exists" });
+    }
+
+    // Check duplicate email (only if email is provided)
+    if (email) {
+      const existingEmail = await Invite.findOne({
+        email: { $regex: new RegExp(`^${email.trim()}$`, "i") },
+      });
+
+      if (existingEmail) {
+        return res
+          .status(400)
+          .json({ detail: "A guest with this email already exists." });
+      }
+    }
+
     const invite = await Invite.create({
       id: uuidv4(),
       name,
