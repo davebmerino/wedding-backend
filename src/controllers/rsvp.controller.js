@@ -8,6 +8,11 @@ exports.submitRSVP = async (req, res, next) => {
   try {
     const { invite_id, primary_guest, additional_guests = [] } = req.body;
 
+    // Require invite ID
+    if (!invite_id) {
+      return res.status(400).json({ detail: "Invalid invitation." });
+    }
+
     if (
       !primary_guest ||
       !primary_guest.name ||
@@ -38,7 +43,64 @@ exports.submitRSVP = async (req, res, next) => {
         });
       }
     }
+    // Find the invitation
+    const invite = await Invite.findOne({ id: invite_id });
 
+    if (!invite) {
+      return res.status(404).json({ detail: "Invitation not found." });
+    }
+
+    // Prevent multiple RSVPs for the same invitation
+    if (invite.has_responded) {
+      return res
+        .status(400)
+        .json({ detail: "This invitation has already submitted an RSVP." });
+    }
+
+    // Primary guest email must match the invitation email
+    if (
+      invite.email &&
+      invite.email.toLowerCase() !== primary_guest.email.toLowerCase()
+    ) {
+      return res
+        .status(400)
+        .json({ detail: "This email is not associated with this invitation." });
+    }
+
+    // Check guest limit
+    const allowedAdditionalGuests = Math.max(invite.number_of_guests - 1, 0);
+    if (additional_guests.length > allowedAdditionalGuests) {
+      return res.status(400).json({
+        detail: `This invitation allows only ${allowedAdditionalGuests} additional guest(s).`,
+      });
+    }
+
+    // Collect all emails
+    const emails = [
+      primary_guest.email.trim().toLowerCase(),
+      ...additional_guests.map((g) => g.email.trim().toLowerCase()),
+    ];
+
+    // Prevent duplicate emails
+    if (new Set(emails).size !== emails.length) {
+      return res
+        .status(400)
+        .json({ detail: "Duplicate email addresses are not allowed." });
+    }
+
+    // Every email must exist in the invitation list
+    for (const email of emails) {
+      const invited = await Invite.findOne({
+        email: { $regex: new RegExp(`^${email}$`, "i") },
+      });
+      if (!invited) {
+        return res
+          .status(400)
+          .json({ detail: `${email} is not on the invitation list.` });
+      }
+    }
+
+    // Create RSVP
     const rsvp = await RSVP.create({
       id: uuidv4(),
       invite_id: invite_id || null,
