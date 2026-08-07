@@ -2,26 +2,57 @@ const { v4: uuidv4 } = require("uuid");
 const Invite = require("../models/invite.model.js");
 const { sendInviteEmail } = require("../services/email.service.js");
 
+const { redis } = require("../config/redis");
+
+// exports.getInvite = async (req, res, next) => {
+//   try {
+//     const invite = await Invite.findOne({
+//       id: req.params.id,
+//     });
+
+//     if (!invite) {
+//       return res.status(404).json({
+//         detail: "Invite not found",
+//       });
+//     }
+
+//     invite.opened_count += 1;
+//     invite.last_opened = new Date();
+//     await invite.save();
+
+//     const response = invite.toObject();
+//     delete response._id;
+
+//     res.json(response);
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
 exports.getInvite = async (req, res, next) => {
   try {
-    const invite = await Invite.findOne({
-      id: req.params.id,
-    });
+    const cacheKey = `invite:${req.params.id}`;
 
-    if (!invite) {
-      return res.status(404).json({
-        detail: "Invite not found",
-      });
+    // 1. Check cache
+    const cached = await redis.get(cacheKey);
+
+    if (cached) {
+      return res.json(JSON.parse(cached));
     }
 
-    invite.opened_count += 1;
-    invite.last_opened = new Date();
-    await invite.save();
+    // 2. Get from MongoDB
+    const invite = await Invite.findOne({
+      id: req.params.id,
+    }).select("-_id");
 
-    const response = invite.toObject();
-    delete response._id;
+    if (!invite) {
+      return res.status(404).json({ detail: "Invite not found" });
+    }
 
-    res.json(response);
+    // 3. Cache for 5 minutes
+    await redis.setEx(cacheKey, 300, JSON.stringify(invite));
+
+    res.json(invite);
   } catch (err) {
     next(err);
   }

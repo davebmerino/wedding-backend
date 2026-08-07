@@ -6,8 +6,6 @@ module.exports = {
   MONGO_URL: process.env.MONGO_URL,
   DB_NAME: process.env.DB_NAME,
 
-  CORS_ORIGINS: process.env.CORS_ORIGINS || "*",
-
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   SENDER_EMAIL: process.env.SENDER_EMAIL || "onboarding@resend.dev",
   RECIPIENT_EMAIL: process.env.RECIPIENT_EMAIL || "wedding@example.com",
@@ -16,4 +14,5 @@ module.exports = {
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
 
   JWT_SECRET: process.env.JWT_SECRET,
+  REDIS_URL: process.env.REDIS_URL || "redis://localhost:6379",
 };
