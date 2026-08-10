@@ -4,43 +4,24 @@ const { sendInviteEmail } = require("../services/email.service.js");
 
 const { redis } = require("../config/redis");
 
-// exports.getInvite = async (req, res, next) => {
-//   try {
-//     const invite = await Invite.findOne({
-//       id: req.params.id,
-//     });
-
-//     if (!invite) {
-//       return res.status(404).json({
-//         detail: "Invite not found",
-//       });
-//     }
-
-//     invite.opened_count += 1;
-//     invite.last_opened = new Date();
-//     await invite.save();
-
-//     const response = invite.toObject();
-//     delete response._id;
-
-//     res.json(response);
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
 exports.getInvite = async (req, res, next) => {
   try {
     const cacheKey = `invite:${req.params.id}`;
 
-    // 1. Check cache
-    const cached = await redis.get(cacheKey);
+    // Try Redis only if connected
+    try {
+      if (redis?.isOpen) {
+        const cached = await redis.get(cacheKey);
 
-    if (cached) {
-      return res.json(JSON.parse(cached));
+        if (cached) {
+          return res.json(JSON.parse(cached));
+        }
+      }
+    } catch (cacheErr) {
+      console.warn("Redis read failed:", cacheErr.message);
     }
 
-    // 2. Get from MongoDB
+    // Get from MongoDB
     const invite = await Invite.findOne({
       id: req.params.id,
     }).select("-_id");
@@ -49,14 +30,49 @@ exports.getInvite = async (req, res, next) => {
       return res.status(404).json({ detail: "Invite not found" });
     }
 
-    // 3. Cache for 5 minutes
-    await redis.setEx(cacheKey, 300, JSON.stringify(invite));
+    // Cache result if Redis is available
+    try {
+      if (redis?.isOpen) {
+        await redis.setEx(cacheKey, 300, JSON.stringify(invite));
+      }
+    } catch (cacheErr) {
+      console.warn("Redis write failed:", cacheErr.message);
+    }
 
     res.json(invite);
   } catch (err) {
     next(err);
   }
 };
+
+// exports.getInvite = async (req, res, next) => {
+//   try {
+//     const cacheKey = `invite:${req.params.id}`;
+
+//     // 1. Check cache
+//     const cached = await redis.get(cacheKey);
+
+//     if (cached) {
+//       return res.json(JSON.parse(cached));
+//     }
+
+//     // 2. Get from MongoDB
+//     const invite = await Invite.findOne({
+//       id: req.params.id,
+//     }).select("-_id");
+
+//     if (!invite) {
+//       return res.status(404).json({ detail: "Invite not found" });
+//     }
+
+//     // 3. Cache for 5 minutes
+//     await redis.setEx(cacheKey, 300, JSON.stringify(invite));
+
+//     res.json(invite);
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
 exports.listInvites = async (req, res, next) => {
   try {

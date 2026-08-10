@@ -12,7 +12,7 @@ function createAccessToken(username) {
 }
 
 function verifyAccessToken(token) {
-  console.log("JWT_SECRET during verify:", JWT_SECRET);
+  // console.log("JWT_SECRET during verify:", JWT_SECRET);
 
   return jwt.verify(token, JWT_SECRET, {
     issuer: "wedding-api",
