@@ -13,6 +13,7 @@ const statsRoutes = require("./routes/stats.routes.js");
 const allowedOrigins = [
   "http://localhost:5173",
   "https://www.maquicolladowedding.online",
+  "https://maquicolladowedding.online",
 ];
 
 const app = express();
