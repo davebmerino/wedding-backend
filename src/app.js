@@ -12,7 +12,7 @@ const statsRoutes = require("./routes/stats.routes.js");
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://carl-irish.vercel.app",
+  "https://www.maquicolladowedding.online",
 ];
 
 const app = express();

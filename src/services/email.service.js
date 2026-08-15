@@ -147,7 +147,7 @@ function generateInviteEmailHTML(guestName, inviteUrl) {
 
           <div style="margin-bottom:15px;">
             <div class="label">Time</div>
-            <div class="value">03:00 PM</div>
+            <div class="value">02:00 PM</div>
           </div>
 
           <div>

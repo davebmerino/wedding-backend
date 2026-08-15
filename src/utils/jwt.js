@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config/env");
 
-console.log("JWT_SECRET in jwt.js:", JWT_SECRET);
+// console.log("JWT_SECRET in jwt.js:", JWT_SECRET);
 
 function createAccessToken(username) {
   return jwt.sign({ username }, JWT_SECRET, {
