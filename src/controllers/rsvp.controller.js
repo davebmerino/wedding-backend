@@ -13,31 +13,27 @@ exports.submitRSVP = async (req, res, next) => {
       return res.status(400).json({ detail: "Invalid invitation." });
     }
 
-    if (
-      !primary_guest ||
-      !primary_guest.name ||
-      !primary_guest.email ||
-      !primary_guest.contact
-    ) {
+    if (!primary_guest || !primary_guest.name) {
       return res.status(400).json({
-        detail: "Primary guest information is required",
+        detail: "Primary guest name is required",
       });
     }
 
-    if (!validateEmail(primary_guest.email)) {
+    // Email is optional, but if provided it must be valid
+    if (primary_guest.email && !validateEmail(primary_guest.email)) {
       return res.status(400).json({
         detail: "Invalid primary guest email",
       });
     }
 
     for (const guest of additional_guests) {
-      if (!guest.name || !guest.email || !guest.contact) {
+      if (!guest.name) {
         return res.status(400).json({
-          detail: "All guest fields are required",
+          detail: "Guest name is required",
         });
       }
 
-      if (!validateEmail(guest.email)) {
+      if (guest.email && !validateEmail(guest.email)) {
         return res.status(400).json({
           detail: `Invalid email for guest: ${guest.name}`,
         });
@@ -59,12 +55,12 @@ exports.submitRSVP = async (req, res, next) => {
 
     // Primary guest email must match the invitation email
     if (
-      invite.email &&
-      invite.email.toLowerCase() !== primary_guest.email.toLowerCase()
+      invite.name.trim().toLowerCase() !==
+      primary_guest.name.trim().toLowerCase()
     ) {
       return res
         .status(400)
-        .json({ detail: "This email is not associated with this invitation." });
+        .json({ detail: "This invitation is assigned to a different guest." });
     }
 
     // Check guest limit
@@ -77,11 +73,12 @@ exports.submitRSVP = async (req, res, next) => {
 
     // Collect all emails
     const emails = [
-      primary_guest.email.trim().toLowerCase(),
-      ...additional_guests.map((g) => g.email.trim().toLowerCase()),
-    ];
+      primary_guest.email,
+      ...additional_guests.map((g) => g.email),
+    ]
+      .filter(Boolean)
+      .map((e) => e.trim().toLowerCase());
 
-    // Prevent duplicate emails
     if (new Set(emails).size !== emails.length) {
       return res
         .status(400)

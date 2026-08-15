@@ -10,14 +10,14 @@ const guestSchema = new mongoose.Schema(
 
     email: {
       type: String,
-      required: true,
       trim: true,
+      default: "",
     },
 
     contact: {
       type: String,
-      required: true,
       trim: true,
+      default: "",
     },
 
     status: {
